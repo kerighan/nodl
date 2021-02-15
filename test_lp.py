@@ -1,7 +1,7 @@
-import networkx as nx
 from nodl.community import label_propagation
-from nodl.plot import draw
 import matplotlib.pyplot as plt
+from nodl.plot import draw
+import networkx as nx
 
 
 G = nx.karate_club_graph()
