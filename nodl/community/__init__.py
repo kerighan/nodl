@@ -2,6 +2,7 @@ from collections import Counter
 from .utils import relabel
 import random
 
+
 @relabel
 def label_propagation(G, history_length=20):
     labels = {}
@@ -46,4 +47,30 @@ def label_propagation(G, history_length=20):
             if first_history <= n_changed + 1:
                 n_changed = 0
         
+    return labels
+
+
+@relabel
+def infomap(G):
+    import infomap as ip
+    node2id = {node: i for i, node in enumerate(G.nodes)}
+    id2node = {i: node for node, i in node2id.items()}
+
+    if G.is_directed():
+        infomapSimple = ip.Infomap("--two-level --directed --silent")
+    else:
+        infomapSimple = ip.Infomap("--two-level --silent")
+    network = infomapSimple.network
+    for e in G.edges:
+        network.addLink(node2id[e[0]], node2id[e[1]])
+
+    infomapSimple.run()
+
+    c = []
+    labels = {}
+    for node in infomapSimple.iterTree():
+        if node.isLeaf():
+            node_id = node.physicalId
+            module = node.moduleIndex()
+            labels[id2node[node_id]] = module
     return labels

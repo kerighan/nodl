@@ -75,13 +75,6 @@ def loopy_belief_propagation(G, labels, psi):
     labelset = set(labels.values())
     n_labels = len(labelset)
 
-    # estimation de la matrice potentielle
-    # en i, j : probabilité d'être à l'état j si un voisin est à l'état i
-    # psi = np.array([
-    #     [.7, .3],
-    #     [.4, .6]
-    # ])
-
     # initialisation des prior
     phi = np.ones((n_nodes, n_labels)) / n_labels
 
@@ -145,3 +138,4 @@ def loopy_belief_propagation(G, labels, psi):
     for node, probability in zip(G.nodes, phi):
         results[node] = probability
     return results
+
