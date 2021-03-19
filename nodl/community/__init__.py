@@ -1,9 +1,9 @@
 from collections import Counter
-from .utils import relabel
+from .utils import relabel_
 import random
 
 
-@relabel
+@relabel_
 def label_propagation(G, history_length=20):
     labels = {}
     # initialize communities
@@ -50,7 +50,7 @@ def label_propagation(G, history_length=20):
     return labels
 
 
-@relabel
+@relabel_
 def infomap(G):
     import infomap as ip
     node2id = {node: i for i, node in enumerate(G.nodes)}
@@ -74,3 +74,9 @@ def infomap(G):
             module = node.moduleIndex()
             labels[id2node[node_id]] = module
     return labels
+
+
+@relabel_
+def louvain(G):
+    import cylouvain
+    return cylouvain.best_partition(G)
