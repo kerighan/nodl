@@ -15,3 +15,10 @@ def relabel(labels):
         old2new[old_label] = i
     labels = {node: old2new[label] for node, label in labels.items()}
     return labels
+
+
+def get_cm2nodes(node2cm):
+    cm2nodes = {}
+    for node, cm in node2cm.items():
+        cm2nodes.setdefault(cm, []).append(node)
+    return cm2nodes
