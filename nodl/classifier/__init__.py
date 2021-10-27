@@ -21,7 +21,7 @@ def relational_classifier(G, labels, epsilon=1e-2, ):
     n_nodes = len(node2id)
 
     # probability matrix
-    P = np.ones((n_nodes, n_labels,), dtype=np.float8) / n_labels
+    P = np.ones((n_nodes, n_labels,), dtype=np.float16) / n_labels
 
     # initialize training set
     for node, label in labels.items():
@@ -46,17 +46,17 @@ def relational_classifier(G, labels, epsilon=1e-2, ):
             end = indptr[node_id + 1]
 
             node_weight = 0
-            probability = np.zeros((n_labels,), dtype=np.float8)
+            probability = np.zeros((n_labels,), dtype=np.float16)
             for neighbor_id, w in zip(indices[start:end], weights[start:end]):
                 probability += w * P[neighbor_id]
                 node_weight += w
-            probability /= node_weight
+            probability /= max(1e-6, node_weight)
 
             dist = np.sqrt(np.square(probability - P[node_id]).sum())
             if dist > epsilon:
                 n_changed += 1
                 P[node_id] = probability
-        print(n_changed)
+        print(f"remaining nodes={n_changed}          ", end="\r")
 
     results = {}
     for node, probability in zip(G.nodes, P):
