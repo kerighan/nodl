@@ -1,8 +1,9 @@
 import random
+
 import networkx as nx
 
 
-def relational_classifier(G, labels):
+def relational_classifier(G, labels, epsilon=1e-2, ):
     import numpy as np
 
     # adjacency matrix
@@ -12,6 +13,8 @@ def relational_classifier(G, labels):
     weights = A.data
 
     labelset = set(labels.values())
+    label2id = {label: i for i, label in enumerate(labelset)}
+    id2label = {i: label for label, i in label2id.items()}
     n_labels = len(labelset)
 
     node2id = {node: i for i, node in enumerate(G.nodes)}
@@ -23,8 +26,9 @@ def relational_classifier(G, labels):
     # initialize training set
     for node, label in labels.items():
         node_id = node2id[node]
+        label_id = label2id[label]
         P[node_id] = 0.
-        P[node_id, label] = 1.
+        P[node_id, label_id] = 1.
 
     # learn
     nodes = [node for node in G.nodes if node not in labels]
@@ -32,11 +36,11 @@ def relational_classifier(G, labels):
     n_changed = float("inf")
     while n_changed > 0:
         n_changed = 0
-        
+
         # one pass
         for node in nodes:
             node_id = node2id[node]
-            
+
             # get neighbors ids
             start = indptr[node_id]
             end = indptr[node_id + 1]
@@ -48,13 +52,19 @@ def relational_classifier(G, labels):
                 node_weight += w
             probability /= node_weight
 
-            if not np.allclose(probability, P[node_id]):
+            dist = np.sqrt(np.square(probability - P[node_id]).sum())
+            if dist > epsilon:
                 n_changed += 1
                 P[node_id] = probability
-    
+        print(n_changed)
+
     results = {}
     for node, probability in zip(G.nodes, P):
-        results[node] = probability
+        best_category = np.argmax(probability)
+        if probability[best_category] > .7:
+            results[node] = id2label[best_category]
+        else:
+            results[node] = "Other"
     return results
 
 
@@ -138,4 +148,3 @@ def loopy_belief_propagation(G, labels, psi):
     for node, probability in zip(G.nodes, phi):
         results[node] = probability
     return results
-
